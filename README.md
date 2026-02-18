@@ -115,3 +115,4 @@ The integration suite performs real API lifecycle checks in strict order:
 7. delete conference room
 
 Cleanup safeguards run in `tearDownAfterClass()` to remove created entities if a test fails mid-sequence.
+
