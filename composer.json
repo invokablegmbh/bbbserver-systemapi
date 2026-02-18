@@ -1,5 +1,5 @@
 {
-    "name": "bbbserver/systemapiconnector",
+    "name": "invokablegmbh/bbbserver-systemapi",
     "description": "Composer-installable PHP connector for the bbbserver BigBlueButton SystemAPI",
     "keywords": [
         "bigbluebutton",
