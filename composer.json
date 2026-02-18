@@ -1,0 +1,48 @@
+{
+    "name": "bbbserver/systemapiconnector",
+    "description": "Composer-installable PHP connector for the bbbserver BigBlueButton SystemAPI",
+    "keywords": [
+        "bigbluebutton",
+        "bbb",
+        "bbbserver",
+        "systemapi",
+        "api-client"
+    ],
+    "type": "library",
+    "homepage": "https://bbbserver.com",
+    "authors": [
+        {
+            "name": "bbbserver"
+        }
+    ],
+    "support": {
+        "docs": "https://documenter.getpostman.com/view/7658590/T1DwdET1?version=latest"
+    },
+    "license": "MIT",
+    "require": {
+        "php": "^8.2"
+    },
+    "suggest": {
+        "ext-curl": "Recommended for best HTTP transport performance"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^11.0",
+        "symfony/polyfill-mbstring": "^1.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "BbbServer\\SystemApiConnector\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "BbbServer\\SystemApiConnector\\Tests\\": "tests/"
+        }
+    },
+    "scripts": {
+        "test": "phpunit --testdox",
+        "test:unit": "phpunit --testsuite unit --testdox",
+        "test:integration": "phpunit --testsuite integration --testdox",
+        "test:coverage": "phpunit --testsuite unit --coverage-text"
+    }
+}
