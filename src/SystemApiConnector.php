@@ -21,8 +21,8 @@ use InvalidArgumentException;
 
 final class SystemApiConnector
 {
-    private readonly SystemApiConfiguration $systemApiConfiguration;
-    private readonly JsonHttpClient $jsonHttpClient;
+    private SystemApiConfiguration $systemApiConfiguration;
+    private JsonHttpClient $jsonHttpClient;
 
     private ?ConferenceRoomsClient $conferenceRoomsClient = null;
     private ?ModeratorGroupsClient $moderatorGroupsClient = null;
@@ -34,14 +34,23 @@ final class SystemApiConnector
     private ?PartnerClient $partnerClient = null;
     private ?OthersClient $othersClient = null;
 
+    /**
+     * @param SystemApiConfiguration|string $configurationOrBaseUrl
+     */
     public function __construct(
-        SystemApiConfiguration|string $configurationOrBaseUrl,
+        $configurationOrBaseUrl,
         ?string $apiKey = null,
         ?HttpTransportInterface $httpTransport = null
     ) {
-        $configuration = $configurationOrBaseUrl instanceof SystemApiConfiguration
-            ? $configurationOrBaseUrl
-            : $this->createConfigurationFromLegacyArguments($configurationOrBaseUrl, $apiKey);
+        if ($configurationOrBaseUrl instanceof SystemApiConfiguration) {
+            $configuration = $configurationOrBaseUrl;
+        } elseif (is_string($configurationOrBaseUrl)) {
+            $configuration = $this->createConfigurationFromLegacyArguments($configurationOrBaseUrl, $apiKey);
+        } else {
+            throw new InvalidArgumentException(
+                'First argument must be either a SystemApiConfiguration instance or a base URL string.'
+            );
+        }
 
         $this->systemApiConfiguration = $configuration;
 

@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace BbbServer\SystemApiConnector\Tests\Integration;
 
 use BbbServer\SystemApiConnector\Tests\Integration\Support\IntegrationTestCase;
-use PHPUnit\Framework\Attributes\Depends;
-use PHPUnit\Framework\Attributes\Group;
 
-#[Group('integration')]
+/**
+ * @group integration
+ */
 final class RecordingsIntegrationTest extends IntegrationTestCase
 {
     public function testListRecordingsEndpoint(): array
@@ -55,7 +55,9 @@ final class RecordingsIntegrationTest extends IntegrationTestCase
         ];
     }
 
-    #[Depends('testListRecordingsEndpoint')]
+    /**
+     * @depends testListRecordingsEndpoint
+     */
     public function testListByConferenceEndpoint(array $state): array
     {
         if (!is_string($state['conferenceId']) || $state['conferenceId'] === '') {
@@ -72,7 +74,9 @@ final class RecordingsIntegrationTest extends IntegrationTestCase
         return $state;
     }
 
-    #[Depends('testListByConferenceEndpoint')]
+    /**
+     * @depends testListByConferenceEndpoint
+     */
     public function testGetRecordingEndpoint(array $state): array
     {
         if (!is_string($state['recordingId']) || $state['recordingId'] === '') {
@@ -89,7 +93,9 @@ final class RecordingsIntegrationTest extends IntegrationTestCase
         return $state;
     }
 
-    #[Depends('testGetRecordingEndpoint')]
+    /**
+     * @depends testGetRecordingEndpoint
+     */
     public function testPrepareDownloadEndpoint(array $state): array
     {
         if (!is_string($state['recordingId']) || $state['recordingId'] === '') {
@@ -106,7 +112,9 @@ final class RecordingsIntegrationTest extends IntegrationTestCase
         return $state;
     }
 
-    #[Depends('testPrepareDownloadEndpoint')]
+    /**
+     * @depends testPrepareDownloadEndpoint
+     */
     public function testDeleteRecordingEndpoint(array $state): void
     {
         $recordingId = '00000000-0000-0000-0000-000000000000';

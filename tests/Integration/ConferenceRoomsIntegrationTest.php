@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace BbbServer\SystemApiConnector\Tests\Integration;
 
 use BbbServer\SystemApiConnector\Tests\Integration\Support\IntegrationTestCase;
-use PHPUnit\Framework\Attributes\Depends;
-use PHPUnit\Framework\Attributes\Group;
 
-#[Group('integration')]
+/**
+ * @group integration
+ */
 final class ConferenceRoomsIntegrationTest extends IntegrationTestCase
 {
     private static ?string $createdRoomId = null;
@@ -43,7 +43,9 @@ final class ConferenceRoomsIntegrationTest extends IntegrationTestCase
         return $roomId;
     }
 
-    #[Depends('testCreateConferenceRoomEndpoint')]
+    /**
+     * @depends testCreateConferenceRoomEndpoint
+     */
     public function testGetConferenceRoomEndpoint(string $roomId): string
     {
         $responsePayload = $this->callEndpointOrSkipFeature(
@@ -56,7 +58,9 @@ final class ConferenceRoomsIntegrationTest extends IntegrationTestCase
         return $roomId;
     }
 
-    #[Depends('testGetConferenceRoomEndpoint')]
+    /**
+     * @depends testGetConferenceRoomEndpoint
+     */
     public function testUpdateConferenceRoomSettingsEndpoint(string $roomId): string
     {
         $responsePayload = $this->callEndpointOrSkipFeature(
@@ -73,7 +77,9 @@ final class ConferenceRoomsIntegrationTest extends IntegrationTestCase
         return $roomId;
     }
 
-    #[Depends('testUpdateConferenceRoomSettingsEndpoint')]
+    /**
+     * @depends testUpdateConferenceRoomSettingsEndpoint
+     */
     public function testDeleteConferenceRoomEndpoint(string $roomId): void
     {
         $responsePayload = $this->callEndpointOrSkipFeature(

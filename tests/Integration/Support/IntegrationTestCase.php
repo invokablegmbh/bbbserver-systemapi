@@ -23,7 +23,7 @@ abstract class IntegrationTestCase extends TestCase
         return new SystemApiConnector($baseUrl, $apiKey, new CurlHttpTransport(90));
     }
 
-    protected function callEndpointOrSkipFeature(callable $operation, string $endpointName): mixed
+    protected function callEndpointOrSkipFeature(callable $operation, string $endpointName)
     {
         try {
             return $operation();
@@ -92,7 +92,7 @@ abstract class IntegrationTestCase extends TestCase
             return true;
         }
 
-        if ($statusCode === 0 && str_contains($haystack, 'transport error')) {
+        if ($statusCode === 0 && strpos($haystack, 'transport error') !== false) {
             return true;
         }
 

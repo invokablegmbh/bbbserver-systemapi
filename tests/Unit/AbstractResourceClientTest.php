@@ -26,27 +26,27 @@ final class AbstractResourceClientTest extends TestCase
         $conferenceRoomsClient = new ConferenceRoomsClient($jsonHttpClient);
 
         $conferenceRoomsClient->listConferenceRooms(['page' => 1]);
-        self::assertSame('/conference-rooms/list', $fakeHttpTransport->lastRequest()?->path);
-        self::assertSame('GET', $fakeHttpTransport->lastRequest()?->method);
+        self::assertSame('/conference-rooms/list', $fakeHttpTransport->lastRequest()->path);
+        self::assertSame('GET', $fakeHttpTransport->lastRequest()->method);
 
         $conferenceRoomsClient->getConferenceRoom('room-id');
-        self::assertSame('/conference-rooms/get', $fakeHttpTransport->lastRequest()?->path);
-        self::assertSame(['roomId' => 'room-id'], $fakeHttpTransport->lastRequest()?->query);
+        self::assertSame('/conference-rooms/get', $fakeHttpTransport->lastRequest()->path);
+        self::assertSame(['roomId' => 'room-id'], $fakeHttpTransport->lastRequest()->query);
 
         $conferenceRoomsClient->createConferenceRoom(['name' => 'My Room']);
-        self::assertSame('POST', $fakeHttpTransport->lastRequest()?->method);
-        self::assertSame('/conference-rooms/create', $fakeHttpTransport->lastRequest()?->path);
+        self::assertSame('POST', $fakeHttpTransport->lastRequest()->method);
+        self::assertSame('/conference-rooms/create', $fakeHttpTransport->lastRequest()->path);
 
         $conferenceRoomsClient->updateConferenceRoomSettings(['roomId' => 'room-id', 'name' => 'New Name']);
-        self::assertSame('POST', $fakeHttpTransport->lastRequest()?->method);
-        self::assertSame('/conference-rooms/settings', $fakeHttpTransport->lastRequest()?->path);
+        self::assertSame('POST', $fakeHttpTransport->lastRequest()->method);
+        self::assertSame('/conference-rooms/settings', $fakeHttpTransport->lastRequest()->path);
 
         $conferenceRoomsClient->deleteConferenceRoom('room-id');
-        self::assertSame('GET', $fakeHttpTransport->lastRequest()?->method);
-        self::assertSame('/conference-rooms/delete', $fakeHttpTransport->lastRequest()?->path);
+        self::assertSame('GET', $fakeHttpTransport->lastRequest()->method);
+        self::assertSame('/conference-rooms/delete', $fakeHttpTransport->lastRequest()->path);
 
         $conferenceRoomsClient->request('GET', '/new-endpoint', ['flag' => 1]);
-        self::assertSame('/conference-rooms/new-endpoint', $fakeHttpTransport->lastRequest()?->path);
-        self::assertSame('GET', $fakeHttpTransport->lastRequest()?->method);
+        self::assertSame('/conference-rooms/new-endpoint', $fakeHttpTransport->lastRequest()->path);
+        self::assertSame('GET', $fakeHttpTransport->lastRequest()->method);
     }
 }

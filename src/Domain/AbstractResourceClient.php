@@ -8,10 +8,15 @@ use BbbServer\SystemApiConnector\Http\JsonHttpClient;
 
 abstract class AbstractResourceClient
 {
+    protected JsonHttpClient $jsonHttpClient;
+    private string $resourcePath;
+
     public function __construct(
-        protected readonly JsonHttpClient $jsonHttpClient,
-        private readonly string $resourcePath
+        JsonHttpClient $jsonHttpClient,
+        string $resourcePath
     ) {
+        $this->jsonHttpClient = $jsonHttpClient;
+        $this->resourcePath = $resourcePath;
     }
 
     public function list(array $query = []): array
@@ -19,7 +24,10 @@ abstract class AbstractResourceClient
         return $this->jsonHttpClient->get($this->resourcePath, $query);
     }
 
-    public function get(int|string $identifier, array $query = []): array
+    /**
+     * @param int|string $identifier
+     */
+    public function get($identifier, array $query = []): array
     {
         return $this->jsonHttpClient->get($this->resourcePath . '/' . $identifier, $query);
     }
@@ -29,17 +37,26 @@ abstract class AbstractResourceClient
         return $this->jsonHttpClient->post($this->resourcePath, $payload, $query);
     }
 
-    public function update(int|string $identifier, array $payload, array $query = []): array
+    /**
+     * @param int|string $identifier
+     */
+    public function update($identifier, array $payload, array $query = []): array
     {
         return $this->jsonHttpClient->put($this->resourcePath . '/' . $identifier, $payload, $query);
     }
 
-    public function patch(int|string $identifier, array $payload, array $query = []): array
+    /**
+     * @param int|string $identifier
+     */
+    public function patch($identifier, array $payload, array $query = []): array
     {
         return $this->jsonHttpClient->patch($this->resourcePath . '/' . $identifier, $payload, $query);
     }
 
-    public function delete(int|string $identifier, array $query = []): array
+    /**
+     * @param int|string $identifier
+     */
+    public function delete($identifier, array $query = []): array
     {
         return $this->jsonHttpClient->delete($this->resourcePath . '/' . $identifier, $query);
     }

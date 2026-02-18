@@ -8,9 +8,12 @@ use BbbServer\SystemApiConnector\Exception\TransportException;
 
 final class CurlHttpTransport implements HttpTransportInterface
 {
+    private int $timeoutSeconds;
+
     public function __construct(
-        private readonly int $timeoutSeconds = 20
+        int $timeoutSeconds = 20
     ) {
+        $this->timeoutSeconds = $timeoutSeconds;
     }
 
     public function send(string $baseUrl, ApiRequest $request): ApiResponse
@@ -27,7 +30,7 @@ final class CurlHttpTransport implements HttpTransportInterface
         }
 
         $responseHeaders = [];
-        $headerCollector = static function (mixed $curlHandle, string $headerLine) use (&$responseHeaders): int {
+        $headerCollector = static function ($curlHandle, string $headerLine) use (&$responseHeaders): int {
             $headerLength = strlen($headerLine);
             $parts = explode(':', $headerLine, 2);
             if (count($parts) === 2) {

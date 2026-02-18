@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace BbbServer\SystemApiConnector\Tests\Integration;
 
 use BbbServer\SystemApiConnector\Tests\Integration\Support\IntegrationTestCase;
-use PHPUnit\Framework\Attributes\Depends;
-use PHPUnit\Framework\Attributes\Group;
 
-#[Group('integration')]
+/**
+ * @group integration
+ */
 final class ModeratorGroupsIntegrationTest extends IntegrationTestCase
 {
     public function testListModeratorGroupsEndpoint(): void
@@ -51,7 +51,9 @@ final class ModeratorGroupsIntegrationTest extends IntegrationTestCase
         return ['groupId' => $groupId, 'moderatorEmail' => $moderatorEmail];
     }
 
-    #[Depends('testCreateModeratorGroupEndpoint')]
+    /**
+     * @depends testCreateModeratorGroupEndpoint
+     */
     public function testGetModeratorGroupEndpoint(array $state): array
     {
         $responsePayload = $this->callEndpointOrSkipFeature(
@@ -64,7 +66,9 @@ final class ModeratorGroupsIntegrationTest extends IntegrationTestCase
         return $state;
     }
 
-    #[Depends('testGetModeratorGroupEndpoint')]
+    /**
+     * @depends testGetModeratorGroupEndpoint
+     */
     public function testAddToModeratorGroupEndpoint(array $state): array
     {
         $responsePayload = $this->callEndpointOrSkipFeature(
@@ -80,7 +84,9 @@ final class ModeratorGroupsIntegrationTest extends IntegrationTestCase
         return $state;
     }
 
-    #[Depends('testAddToModeratorGroupEndpoint')]
+    /**
+     * @depends testAddToModeratorGroupEndpoint
+     */
     public function testToggleUserIsGroupAdminEndpoint(array $state): array
     {
         $responsePayload = $this->callEndpointOrSkipFeature(
@@ -93,7 +99,9 @@ final class ModeratorGroupsIntegrationTest extends IntegrationTestCase
         return $state;
     }
 
-    #[Depends('testToggleUserIsGroupAdminEndpoint')]
+    /**
+     * @depends testToggleUserIsGroupAdminEndpoint
+     */
     public function testUnassignUserEndpoint(array $state): array
     {
         $responsePayload = $this->callEndpointOrSkipFeature(
@@ -106,7 +114,9 @@ final class ModeratorGroupsIntegrationTest extends IntegrationTestCase
         return $state;
     }
 
-    #[Depends('testUnassignUserEndpoint')]
+    /**
+     * @depends testUnassignUserEndpoint
+     */
     public function testToggleUserCanLoginEndpoint(array $state): array
     {
         $responsePayload = $this->callEndpointOrSkipFeature(
@@ -119,7 +129,9 @@ final class ModeratorGroupsIntegrationTest extends IntegrationTestCase
         return $state;
     }
 
-    #[Depends('testToggleUserCanLoginEndpoint')]
+    /**
+     * @depends testToggleUserCanLoginEndpoint
+     */
     public function testRefreshInvitationLinkEndpoint(array $state): array
     {
         $responsePayload = $this->callEndpointOrSkipFeature(
@@ -132,7 +144,9 @@ final class ModeratorGroupsIntegrationTest extends IntegrationTestCase
         return $state;
     }
 
-    #[Depends('testRefreshInvitationLinkEndpoint')]
+    /**
+     * @depends testRefreshInvitationLinkEndpoint
+     */
     public function testRemoveUserEndpoint(array $state): array
     {
         $responsePayload = $this->callEndpointOrSkipFeature(
@@ -145,7 +159,9 @@ final class ModeratorGroupsIntegrationTest extends IntegrationTestCase
         return $state;
     }
 
-    #[Depends('testRemoveUserEndpoint')]
+    /**
+     * @depends testRemoveUserEndpoint
+     */
     public function testDeleteModeratorGroupEndpoint(array $state): void
     {
         $responsePayload = $this->callEndpointOrSkipFeature(

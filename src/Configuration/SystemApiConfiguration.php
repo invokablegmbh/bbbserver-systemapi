@@ -6,7 +6,7 @@ namespace BbbServer\SystemApiConnector\Configuration;
 
 use InvalidArgumentException;
 
-final readonly class SystemApiConfiguration
+final class SystemApiConfiguration
 {
     private string $baseUrl;
     private string $apiKey;

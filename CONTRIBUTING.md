@@ -4,7 +4,7 @@ Thanks for your interest in improving this connector.
 
 ## Prerequisites
 
-- PHP 8.2+
+- PHP 7.4+
 - Composer
 
 ## Setup

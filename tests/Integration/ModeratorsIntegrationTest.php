@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace BbbServer\SystemApiConnector\Tests\Integration;
 
 use BbbServer\SystemApiConnector\Tests\Integration\Support\IntegrationTestCase;
-use PHPUnit\Framework\Attributes\Depends;
-use PHPUnit\Framework\Attributes\Group;
 
-#[Group('integration')]
+/**
+ * @group integration
+ */
 final class ModeratorsIntegrationTest extends IntegrationTestCase
 {
     public function testListModeratorsEndpoint(): void
@@ -39,7 +39,9 @@ final class ModeratorsIntegrationTest extends IntegrationTestCase
         return $emailAddress;
     }
 
-    #[Depends('testRegisterUserEndpoint')]
+    /**
+     * @depends testRegisterUserEndpoint
+     */
     public function testToggleUserCanLoginEndpoint(string $emailAddress): string
     {
         $responsePayload = $this->callEndpointOrSkipFeature(
@@ -52,7 +54,9 @@ final class ModeratorsIntegrationTest extends IntegrationTestCase
         return $emailAddress;
     }
 
-    #[Depends('testToggleUserCanLoginEndpoint')]
+    /**
+     * @depends testToggleUserCanLoginEndpoint
+     */
     public function testRefreshInvitationLinkEndpoint(string $emailAddress): string
     {
         $responsePayload = $this->callEndpointOrSkipFeature(
@@ -65,7 +69,9 @@ final class ModeratorsIntegrationTest extends IntegrationTestCase
         return $emailAddress;
     }
 
-    #[Depends('testRefreshInvitationLinkEndpoint')]
+    /**
+     * @depends testRefreshInvitationLinkEndpoint
+     */
     public function testToggleUserIsAdminEndpoint(string $emailAddress): string
     {
         $responsePayload = $this->callEndpointOrSkipFeature(
@@ -78,7 +84,9 @@ final class ModeratorsIntegrationTest extends IntegrationTestCase
         return $emailAddress;
     }
 
-    #[Depends('testToggleUserIsAdminEndpoint')]
+    /**
+     * @depends testToggleUserIsAdminEndpoint
+     */
     public function testRemoveUserEndpoint(string $emailAddress): void
     {
         $responsePayload = $this->callEndpointOrSkipFeature(

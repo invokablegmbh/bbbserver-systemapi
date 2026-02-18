@@ -17,7 +17,7 @@ composer require bbbserver/systemapiconnector
 ```
 
 Requirements:
-- PHP 8.2+
+- PHP 7.4+
 - `ext-curl` (optional, recommended for best transport performance)
 
 ## Configuration
@@ -32,9 +32,9 @@ use BbbServer\SystemApiConnector\Configuration\SystemApiConfiguration;
 use BbbServer\SystemApiConnector\SystemApiConnector;
 
 $configuration = SystemApiConfiguration::forBbbserver(
-	apiKey: 'YOUR_SYSTEMAPI_KEY',
-	language: 'en',
-	baseDomain: 'https://app.bbbserver.de'
+	'YOUR_SYSTEMAPI_KEY',
+	'en',
+	'https://app.bbbserver.de'
 );
 
 $connector = SystemApiConnector::fromConfiguration($configuration);
@@ -47,8 +47,8 @@ $connector = SystemApiConnector::fromConfiguration($configuration);
 use BbbServer\SystemApiConnector\SystemApiConnector;
 
 $connector = SystemApiConnector::forBbbserver(
-	apiKey: 'YOUR_SYSTEMAPI_KEY',
-	language: 'en'
+	'YOUR_SYSTEMAPI_KEY',
+	'en'
 );
 
 $conferenceRooms = $connector->conferenceRooms()->list();

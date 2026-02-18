@@ -5,9 +5,10 @@ declare(strict_types=1);
 namespace BbbServer\SystemApiConnector\Tests\Integration;
 
 use BbbServer\SystemApiConnector\Tests\Integration\Support\IntegrationTestCase;
-use PHPUnit\Framework\Attributes\Group;
 
-#[Group('integration')]
+/**
+ * @group integration
+ */
 final class InvoicesIntegrationTest extends IntegrationTestCase
 {
     public function testListInvoicesEndpoint(): void

@@ -4,12 +4,19 @@ declare(strict_types=1);
 
 namespace BbbServer\SystemApiConnector\Http;
 
-final readonly class ApiResponse
+final class ApiResponse
 {
+    public int $statusCode;
+    public array $headers;
+    public string $body;
+
     public function __construct(
-        public int $statusCode,
-        public array $headers,
-        public string $body
+        int $statusCode,
+        array $headers,
+        string $body
     ) {
+        $this->statusCode = $statusCode;
+        $this->headers = $headers;
+        $this->body = $body;
     }
 }

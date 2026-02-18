@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace BbbServer\SystemApiConnector\Tests\Integration;
 
 use BbbServer\SystemApiConnector\Tests\Integration\Support\IntegrationTestCase;
-use PHPUnit\Framework\Attributes\Depends;
-use PHPUnit\Framework\Attributes\Group;
 
-#[Group('integration')]
+/**
+ * @group integration
+ */
 final class ConferencesIntegrationTest extends IntegrationTestCase
 {
     private static ?string $createdRoomId = null;
@@ -33,7 +33,9 @@ final class ConferencesIntegrationTest extends IntegrationTestCase
         return $roomId;
     }
 
-    #[Depends('testCreateConferenceRoomForConferenceEndpoints')]
+    /**
+     * @depends testCreateConferenceRoomForConferenceEndpoints
+     */
     public function testCreateConferenceEndpoint(string $roomId): array
     {
         $responsePayload = $this->callEndpointOrSkipFeature(
@@ -70,7 +72,9 @@ final class ConferencesIntegrationTest extends IntegrationTestCase
         return ['roomId' => $roomId, 'conferenceId' => $conferenceId];
     }
 
-    #[Depends('testCreateConferenceEndpoint')]
+    /**
+     * @depends testCreateConferenceEndpoint
+     */
     public function testListConferencesEndpoint(array $identifiers): array
     {
         $responsePayload = $this->callEndpointOrSkipFeature(
@@ -83,7 +87,9 @@ final class ConferencesIntegrationTest extends IntegrationTestCase
         return $identifiers;
     }
 
-    #[Depends('testListConferencesEndpoint')]
+    /**
+     * @depends testListConferencesEndpoint
+     */
     public function testGetConferenceEndpoint(array $identifiers): array
     {
         $responsePayload = $this->callEndpointOrSkipFeature(
@@ -96,7 +102,9 @@ final class ConferencesIntegrationTest extends IntegrationTestCase
         return $identifiers;
     }
 
-    #[Depends('testGetConferenceEndpoint')]
+    /**
+     * @depends testGetConferenceEndpoint
+     */
     public function testFindConferenceEndpoint(array $identifiers): array
     {
         $conferencePayload = $this->connector()->conferences()->getConference($identifiers['conferenceId']);
@@ -116,7 +124,9 @@ final class ConferencesIntegrationTest extends IntegrationTestCase
         return $identifiers;
     }
 
-    #[Depends('testFindConferenceEndpoint')]
+    /**
+     * @depends testFindConferenceEndpoint
+     */
     public function testPersonalJoinsEndpoint(array $identifiers): array
     {
         $responsePayload = $this->callEndpointOrSkipFeature(
@@ -133,7 +143,9 @@ final class ConferencesIntegrationTest extends IntegrationTestCase
         return $identifiers;
     }
 
-    #[Depends('testPersonalJoinsEndpoint')]
+    /**
+     * @depends testPersonalJoinsEndpoint
+     */
     public function testUpdateConferenceEndpoint(array $identifiers): array
     {
         $responsePayload = $this->callEndpointOrSkipFeature(
@@ -157,7 +169,9 @@ final class ConferencesIntegrationTest extends IntegrationTestCase
         return $identifiers;
     }
 
-    #[Depends('testUpdateConferenceEndpoint')]
+    /**
+     * @depends testUpdateConferenceEndpoint
+     */
     public function testDeleteConferenceEndpoint(array $identifiers): string
     {
         $responsePayload = $this->callEndpointOrSkipFeature(
@@ -171,7 +185,9 @@ final class ConferencesIntegrationTest extends IntegrationTestCase
         return $identifiers['roomId'];
     }
 
-    #[Depends('testDeleteConferenceEndpoint')]
+    /**
+     * @depends testDeleteConferenceEndpoint
+     */
     public function testDeleteRoomAfterConferenceLifecycle(string $roomId): void
     {
         $responsePayload = $this->callEndpointOrSkipFeature(

@@ -12,11 +12,7 @@ final class SystemApiConfigurationTest extends TestCase
 {
     public function testForBbbserverFactoryBuildsConfigFromLanguageAndBaseDomain(): void
     {
-        $configuration = SystemApiConfiguration::forBbbserver(
-            apiKey: 'api-key-value',
-            language: 'en',
-            baseDomain: 'https://app.bbbserver.de'
-        );
+        $configuration = SystemApiConfiguration::forBbbserver('api-key-value', 'en', 'https://app.bbbserver.de');
 
         self::assertSame('https://app.bbbserver.de/en/bbb-system-api', $configuration->baseUrl());
         self::assertSame('api-key-value', $configuration->apiKey());

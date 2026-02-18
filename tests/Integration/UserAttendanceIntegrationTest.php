@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace BbbServer\SystemApiConnector\Tests\Integration;
 
 use BbbServer\SystemApiConnector\Tests\Integration\Support\IntegrationTestCase;
-use PHPUnit\Framework\Attributes\Depends;
-use PHPUnit\Framework\Attributes\Group;
 
-#[Group('integration')]
+/**
+ * @group integration
+ */
 final class UserAttendanceIntegrationTest extends IntegrationTestCase
 {
     public function testListUserAttendanceEndpoint(): ?string
@@ -49,7 +49,9 @@ final class UserAttendanceIntegrationTest extends IntegrationTestCase
         return $this->extractIdentifier($responsePayload, ['conferenceId']);
     }
 
-    #[Depends('testListUserAttendanceEndpoint')]
+    /**
+     * @depends testListUserAttendanceEndpoint
+     */
     public function testGetUserAttendanceEndpoint(?string $conferenceId): ?string
     {
         if (!is_string($conferenceId) || $conferenceId === '') {
@@ -66,7 +68,9 @@ final class UserAttendanceIntegrationTest extends IntegrationTestCase
         return $conferenceId;
     }
 
-    #[Depends('testGetUserAttendanceEndpoint')]
+    /**
+     * @depends testGetUserAttendanceEndpoint
+     */
     public function testDeleteUserAttendanceEndpoint(?string $conferenceId): void
     {
         $syntheticConferenceId = '00000000-0000-0000-0000-000000000000';

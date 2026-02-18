@@ -10,11 +10,18 @@ use BbbServer\SystemApiConnector\Exception\UnexpectedResponseException;
 
 final class JsonHttpClient
 {
+    private string $baseUrl;
+    private string $apiKey;
+    private HttpTransportInterface $httpTransport;
+
     public function __construct(
-        private readonly string $baseUrl,
-        private readonly string $apiKey,
-        private readonly HttpTransportInterface $httpTransport
+        string $baseUrl,
+        string $apiKey,
+        HttpTransportInterface $httpTransport
     ) {
+        $this->baseUrl = $baseUrl;
+        $this->apiKey = $apiKey;
+        $this->httpTransport = $httpTransport;
     }
 
     public function get(string $path, array $query = []): array

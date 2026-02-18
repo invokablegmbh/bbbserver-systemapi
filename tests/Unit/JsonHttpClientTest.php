@@ -25,9 +25,9 @@ final class JsonHttpClientTest extends TestCase
 
         self::assertTrue($responsePayload['ok']);
         self::assertSame('https://app.bbbserver.de/en/bbb-system-api', $fakeHttpTransport->lastBaseUrl());
-        self::assertSame('/conferences', $fakeHttpTransport->lastRequest()?->path);
-        self::assertSame(['page' => 2], $fakeHttpTransport->lastRequest()?->query);
-        self::assertSame('api-key-value', $fakeHttpTransport->lastRequest()?->headers['X-API-KEY']);
+        self::assertSame('/conferences', $fakeHttpTransport->lastRequest()->path);
+        self::assertSame(['page' => 2], $fakeHttpTransport->lastRequest()->query);
+        self::assertSame('api-key-value', $fakeHttpTransport->lastRequest()->headers['X-API-KEY']);
     }
 
     public function testPostEncodesRequestPayloadAsFormUrlEncoded(): void
@@ -38,9 +38,9 @@ final class JsonHttpClientTest extends TestCase
         $jsonHttpClient = new JsonHttpClient('https://example.test/api', 'api-key-value', $fakeHttpTransport);
         $jsonHttpClient->post('/conferences', ['name' => 'Room Name']);
 
-        self::assertSame('name=Room+Name', $fakeHttpTransport->lastRequest()?->body);
-        self::assertSame(['name' => 'Room Name'], $fakeHttpTransport->lastRequest()?->query);
-        self::assertSame('application/x-www-form-urlencoded', $fakeHttpTransport->lastRequest()?->headers['Content-Type']);
+        self::assertSame('name=Room+Name', $fakeHttpTransport->lastRequest()->body);
+        self::assertSame(['name' => 'Room Name'], $fakeHttpTransport->lastRequest()->query);
+        self::assertSame('application/x-www-form-urlencoded', $fakeHttpTransport->lastRequest()->headers['Content-Type']);
     }
 
     public function testRequestThrowsAuthenticationExceptionForUnauthorizedResponse(): void
@@ -107,9 +107,9 @@ final class JsonHttpClientTest extends TestCase
         $jsonHttpClient = new JsonHttpClient('https://example.test/api', 'api-key-value', $fakeHttpTransport);
 
         $jsonHttpClient->patch('/conferences/1', ['title' => 'A']);
-        self::assertSame('PATCH', $fakeHttpTransport->lastRequest()?->method);
+        self::assertSame('PATCH', $fakeHttpTransport->lastRequest()->method);
 
         $jsonHttpClient->put('/conferences/1', ['title' => 'B']);
-        self::assertSame('PUT', $fakeHttpTransport->lastRequest()?->method);
+        self::assertSame('PUT', $fakeHttpTransport->lastRequest()->method);
     }
 }

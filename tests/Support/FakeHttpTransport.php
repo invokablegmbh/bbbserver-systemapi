@@ -7,6 +7,7 @@ namespace BbbServer\SystemApiConnector\Tests\Support;
 use BbbServer\SystemApiConnector\Http\ApiRequest;
 use BbbServer\SystemApiConnector\Http\ApiResponse;
 use BbbServer\SystemApiConnector\Http\HttpTransportInterface;
+use LogicException;
 
 final class FakeHttpTransport implements HttpTransportInterface
 {
@@ -37,8 +38,12 @@ final class FakeHttpTransport implements HttpTransportInterface
         return $this->lastBaseUrl;
     }
 
-    public function lastRequest(): ?ApiRequest
+    public function lastRequest(): ApiRequest
     {
+        if ($this->lastRequest === null) {
+            throw new LogicException('No request has been sent yet.');
+        }
+
         return $this->lastRequest;
     }
 }

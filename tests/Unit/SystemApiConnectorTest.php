@@ -82,6 +82,6 @@ final class SystemApiConnectorTest extends TestCase
         $payload = $connector->others()->root();
 
         self::assertSame('bbbserver', $payload['name']);
-        self::assertSame('/', $fakeHttpTransport->lastRequest()?->path);
+        self::assertSame('/', $fakeHttpTransport->lastRequest()->path);
     }
 }
