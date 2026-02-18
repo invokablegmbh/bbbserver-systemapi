@@ -1,0 +1,29 @@
+# Dependencies
+/vendor/
+
+# Environment and secrets
+.env
+.env.*
+!.env.example
+
+# PHPUnit and coverage artifacts
+.phpunit.result.cache
+.phpunit.cache/
+/coverage/
+coverage.xml
+junit.xml
+
+# Logs and temporary files
+*.log
+*.tmp
+*.temp
+
+# IDE/editor settings
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
