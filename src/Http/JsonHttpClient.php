@@ -34,6 +34,11 @@ final class JsonHttpClient
         return $this->request('POST', $path, $query, $payload);
     }
 
+    public function postMultipart(string $path, array $multipartFields, array $query = []): array
+    {
+        return $this->requestMultipart($path, $multipartFields, $query);
+    }
+
     public function put(string $path, array $payload = [], array $query = []): array
     {
         return $this->request('PUT', $path, $query, $payload);
@@ -47,6 +52,11 @@ final class JsonHttpClient
     public function delete(string $path, array $query = []): array
     {
         return $this->request('DELETE', $path, $query);
+    }
+
+    public function getRaw(string $path, array $query = []): string
+    {
+        return $this->requestRaw('GET', $path, $query);
     }
 
     public function request(string $method, string $path, array $query = [], ?array $payload = null): array
@@ -66,6 +76,80 @@ final class JsonHttpClient
         $response = $this->httpTransport->send(
             $this->baseUrl,
             new ApiRequest($method, $path, $headers, $query, $body)
+        );
+
+        $decodedErrorPayload = $this->decodeResponseBodySafely($response->body);
+
+        if ($response->statusCode === 401 || $response->statusCode === 403) {
+            throw new AuthenticationException(
+                $this->buildErrorMessage('Authentication with bbbserver SystemAPI failed.', $response->statusCode, $decodedErrorPayload),
+                $response->statusCode,
+                $decodedErrorPayload
+            );
+        }
+
+        if ($response->statusCode >= 400) {
+            throw new SystemApiException(
+                $this->buildErrorMessage('SystemAPI request failed', $response->statusCode, $decodedErrorPayload),
+                $response->statusCode,
+                $decodedErrorPayload
+            );
+        }
+
+        if (trim($response->body) === '') {
+            return [];
+        }
+
+        $decodedResponse = json_decode($response->body, true);
+        if (!is_array($decodedResponse)) {
+            throw new UnexpectedResponseException('Expected a JSON object/array response from SystemAPI.', $response->statusCode);
+        }
+
+        return $decodedResponse;
+    }
+
+    public function requestRaw(string $method, string $path, array $query = []): string
+    {
+        $headers = [
+            'X-API-KEY' => $this->apiKey,
+        ];
+
+        $response = $this->httpTransport->send(
+            $this->baseUrl,
+            new ApiRequest($method, $path, $headers, $query)
+        );
+
+        if ($response->statusCode === 401 || $response->statusCode === 403) {
+            $decodedErrorPayload = $this->decodeResponseBodySafely($response->body);
+            throw new AuthenticationException(
+                $this->buildErrorMessage('Authentication with bbbserver SystemAPI failed.', $response->statusCode, $decodedErrorPayload),
+                $response->statusCode,
+                $decodedErrorPayload
+            );
+        }
+
+        if ($response->statusCode >= 400) {
+            $decodedErrorPayload = $this->decodeResponseBodySafely($response->body);
+            throw new SystemApiException(
+                $this->buildErrorMessage('SystemAPI request failed', $response->statusCode, $decodedErrorPayload),
+                $response->statusCode,
+                $decodedErrorPayload
+            );
+        }
+
+        return $response->body;
+    }
+
+    public function requestMultipart(string $path, array $multipartFields, array $query = []): array
+    {
+        $headers = [
+            'Accept' => 'application/json',
+            'X-API-KEY' => $this->apiKey,
+        ];
+
+        $response = $this->httpTransport->send(
+            $this->baseUrl,
+            new ApiRequest('POST', $path, $headers, $query, null, $multipartFields)
         );
 
         $decodedErrorPayload = $this->decodeResponseBodySafely($response->body);

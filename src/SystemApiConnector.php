@@ -7,6 +7,7 @@ namespace BbbServer\SystemApiConnector;
 use BbbServer\SystemApiConnector\Configuration\SystemApiConfiguration;
 use BbbServer\SystemApiConnector\Domain\ConferenceRoomsClient;
 use BbbServer\SystemApiConnector\Domain\ConferencesClient;
+use BbbServer\SystemApiConnector\Domain\CustomerSettingsClient;
 use BbbServer\SystemApiConnector\Domain\InvoicesClient;
 use BbbServer\SystemApiConnector\Domain\ModeratorGroupsClient;
 use BbbServer\SystemApiConnector\Domain\ModeratorsClient;
@@ -27,6 +28,7 @@ final class SystemApiConnector
     private ?ConferenceRoomsClient $conferenceRoomsClient = null;
     private ?ModeratorGroupsClient $moderatorGroupsClient = null;
     private ?ConferencesClient $conferencesClient = null;
+    private ?CustomerSettingsClient $customerSettingsClient = null;
     private ?UserAttendanceClient $userAttendanceClient = null;
     private ?InvoicesClient $invoicesClient = null;
     private ?ModeratorsClient $moderatorsClient = null;
@@ -70,7 +72,7 @@ final class SystemApiConnector
 
     public static function forBbbserver(
         string $apiKey,
-        string $language = 'de',
+        string $language = '',
         ?HttpTransportInterface $httpTransport = null,
         string $baseDomain = 'https://app.bbbserver.de'
     ): self {
@@ -97,6 +99,11 @@ final class SystemApiConnector
     public function conferences(): ConferencesClient
     {
         return $this->conferencesClient ??= new ConferencesClient($this->jsonHttpClient);
+    }
+
+    public function customerSettings(): CustomerSettingsClient
+    {
+        return $this->customerSettingsClient ??= new CustomerSettingsClient($this->jsonHttpClient);
     }
 
     public function userAttendance(): UserAttendanceClient

@@ -7,6 +7,7 @@ namespace BbbServer\SystemApiConnector\Tests\Unit;
 use BbbServer\SystemApiConnector\Configuration\SystemApiConfiguration;
 use BbbServer\SystemApiConnector\Domain\ConferenceRoomsClient;
 use BbbServer\SystemApiConnector\Domain\ConferencesClient;
+use BbbServer\SystemApiConnector\Domain\CustomerSettingsClient;
 use BbbServer\SystemApiConnector\Domain\InvoicesClient;
 use BbbServer\SystemApiConnector\Domain\ModeratorGroupsClient;
 use BbbServer\SystemApiConnector\Domain\ModeratorsClient;
@@ -29,6 +30,7 @@ final class SystemApiConnectorTest extends TestCase
         self::assertInstanceOf(ConferenceRoomsClient::class, $connector->conferenceRooms());
         self::assertInstanceOf(ModeratorGroupsClient::class, $connector->moderatorGroups());
         self::assertInstanceOf(ConferencesClient::class, $connector->conferences());
+        self::assertInstanceOf(CustomerSettingsClient::class, $connector->customerSettings());
         self::assertInstanceOf(UserAttendanceClient::class, $connector->userAttendance());
         self::assertInstanceOf(InvoicesClient::class, $connector->invoices());
         self::assertInstanceOf(ModeratorsClient::class, $connector->moderators());
@@ -49,7 +51,7 @@ final class SystemApiConnectorTest extends TestCase
         self::assertSame('https://app.bbbserver.de/en/bbb-system-api', $fakeHttpTransport->lastBaseUrl());
     }
 
-    public function testForBbbserverFactoryFallsBackToGermanLanguage(): void
+    public function testForBbbserverFactoryDefaultsToBaseUrlWithoutLanguage(): void
     {
         $fakeHttpTransport = new FakeHttpTransport();
         $fakeHttpTransport->queueResponse(new ApiResponse(200, [], '{"ok":true}'));
@@ -57,7 +59,7 @@ final class SystemApiConnectorTest extends TestCase
         $connector = SystemApiConnector::forBbbserver('api-key-value', '', $fakeHttpTransport, 'https://app.bbbserver.de');
         $connector->request('GET', '/');
 
-        self::assertSame('https://app.bbbserver.de/de/bbb-system-api', $fakeHttpTransport->lastBaseUrl());
+        self::assertSame('https://app.bbbserver.de/bbb-system-api', $fakeHttpTransport->lastBaseUrl());
     }
 
     public function testConnectorCanBeCreatedFromConfigurationObject(): void

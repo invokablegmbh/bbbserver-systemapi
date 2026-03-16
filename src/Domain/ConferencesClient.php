@@ -123,4 +123,44 @@ final class ConferencesClient extends AbstractResourceClient
     {
         return $this->request('GET', '/delete', ['conferenceId' => $conferenceId]);
     }
+
+    /**
+     * POST /conferences/upload-slides
+     *
+     * Upload presentation slides (PDF) for a conference.
+     *
+     * @param string    $conferenceId Required conference identifier.
+     * @param \CURLFile $slides       CURLFile instance pointing to the PDF file.
+     */
+    public function uploadSlides(string $conferenceId, \CURLFile $slides): array
+    {
+        return $this->jsonHttpClient->postMultipart('/conferences/upload-slides', [
+            'conferenceId' => $conferenceId,
+            'slides' => $slides,
+        ]);
+    }
+
+    /**
+     * GET /conferences/remove-slides
+     *
+     * Remove uploaded presentation slides from a conference.
+     *
+     * @param string $conferenceId Required conference identifier.
+     */
+    public function removeSlides(string $conferenceId): array
+    {
+        return $this->request('GET', '/remove-slides', ['conferenceId' => $conferenceId]);
+    }
+
+    /**
+     * GET /conferences/download-slides
+     *
+     * Download uploaded presentation slides for a conference.
+     *
+     * @param string $conferenceId Required conference identifier.
+     */
+    public function downloadSlides(string $conferenceId): array
+    {
+        return $this->request('GET', '/download-slides', ['conferenceId' => $conferenceId]);
+    }
 }

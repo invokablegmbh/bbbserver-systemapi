@@ -1,118 +1,316 @@
-# bbbserver BigBlueButton SystemAPI
-This is a PHP module connecting to the bbbserver SystemAPI for BigBlueButton.
+# bbbserver SystemAPI Connector
 
-## What is the SystemAPI for bbbserver?
-BigBlueButton offers an official API which contains the most important endpoints for the handling confereces on a BigBlueButton server.
-However, default BBB lacks several features that are relevant for business use. This is why premium hosters (as e.g. bbbbserver) offer additional features (scheduled conferences, conference series, extended managing of users, managing of additional meeting features like AI).
+A Composer-installable PHP connector for the [bbbserver SystemAPI](https://documenter.getpostman.com/view/7658590/T1DwdET1?version=latest) (BigBlueButton ecosystem).
 
-bbbserver strives to have 100% feature coverage regarding their APIs. This is why they offer two separate APIs:
-- The "IntegrationAPI" is 100% compatible with the BigBlueButton's own API. (https://bbbserver.com/assets/website-bbbserver/pdf/IntegrationAPI.pdf and https://docs.bigbluebutton.org/development/api/)
-- The "SystemAPI" offers all things that go beyond the scope of the "IntegrationAPI". (https://documenter.getpostman.com/view/7658590/T1DwdET1?version=latest)
+## What is the SystemAPI?
+
+BigBlueButton offers an official API for managing conferences on a BBB server. However, standard BigBlueButton lacks features relevant for business use — scheduled conferences, user management, recordings, branding, and more.
+
+[bbbserver](https://bbbserver.com) provides two APIs with full feature coverage:
+
+- **Integration API** — 100% compatible with BigBlueButton's native API, enabling drop-in support for existing plugins (Moodle, Nextcloud, WordPress, etc.). [Docs](https://bbbserver.com/assets/website-bbbserver/pdf/IntegrationAPI.pdf) | [BBB API Reference](https://docs.bigbluebutton.org/development/api/)
+- **System API** — covers everything beyond the Integration API scope: room management, scheduled conferences, moderator groups, customer settings, branding, recordings, and more. [Docs](https://documenter.getpostman.com/view/7658590/T1DwdET1?version=latest)
+
+This connector wraps the **System API**.
 
 ## Installation
-Install via Composer:
 
 ```bash
-composer require bbbserver/systemapiconnector
+composer require invokablegmbh/bbbserver-systemapi
 ```
 
-Requirements:
-- PHP 7.4+
-- `ext-curl` (optional, recommended for best transport performance)
+**Requirements:** PHP 7.4+ and `ext-curl`.
 
 ## Configuration
-The SystemAPI uses an API key via the `X-API-KEY` header.
 
-You can either:
-- pass a full SystemAPI base URL and API key, or
-- use the bbbserver factory for language-aware defaults.
+Obtain an API key from your bbbserver account under "My Profil". The key is sent via the `X-API-KEY` header on every request.
 
 ```php
-use BbbServer\SystemApiConnector\Configuration\SystemApiConfiguration;
 use BbbServer\SystemApiConnector\SystemApiConnector;
 
-$configuration = SystemApiConfiguration::forBbbserver(
-	'YOUR_SYSTEMAPI_KEY',
-	'en',
-	'https://app.bbbserver.de'
-);
+// Simplest — uses default base URL https://app.bbbserver.de/bbb-system-api
+$connector = SystemApiConnector::forBbbserver('YOUR_API_KEY');
 
-$connector = SystemApiConnector::fromConfiguration($configuration);
+// With explicit language prefix (affects server-generated texts like emails):
+$connector = SystemApiConnector::forBbbserver('YOUR_API_KEY', 'en');
+
+// With a fully custom base URL:
+$connector = new SystemApiConnector('https://custom.example.com/bbb-system-api', 'YOUR_API_KEY');
 ```
 
 ## Usage
+
+### Conference Rooms
+
 ```php
-<?php
+$rooms = $connector->conferenceRooms()->listConferenceRooms();
 
-use BbbServer\SystemApiConnector\SystemApiConnector;
+$room = $connector->conferenceRooms()->getConferenceRoom('ROOM_ID');
 
-$connector = SystemApiConnector::forBbbserver(
-	'YOUR_SYSTEMAPI_KEY',
-	'en'
-);
+$connector->conferenceRooms()->createConferenceRoom(['name' => 'Team Room']);
 
-$conferenceRooms = $connector->conferenceRooms()->list();
-
-$conferenceRoom = $connector->conferenceRooms()->getConferenceRoom('ROOM_ID');
-$conference = $connector->conferences()->createConference([
-	'roomId' => 'ROOM_ID',
-	'name' => 'Customer Webinar',
+$connector->conferenceRooms()->updateConferenceRoomSettings([
+    'roomId' => 'ROOM_ID',
+    'name'   => 'Renamed Room',
 ]);
 
-$recordings = $connector->recordings()->listRecordings(['roomId' => 'ROOM_ID']);
+$connector->conferenceRooms()->personalJoins([
+    'roomId' => 'ROOM_ID',
+    'names'  => json_encode(['Alice', 'Bob']),
+    'type'   => 0, // 0 = guest, 1 = moderator
+]);
 
-$rootInfo = $connector->others()->root();
+$connector->conferenceRooms()->deleteConferenceRoom('ROOM_ID');
 ```
 
-Direct request access is available if you need endpoints that are not wrapped yet:
+### Conferences
 
 ```php
-$payload = $connector->request('GET', '/conferences', ['page' => 1]);
+$conferences = $connector->conferences()->listConferences(['roomId' => 'ROOM_ID']);
+
+$conference = $connector->conferences()->getConference('CONFERENCE_ID');
+
+$connector->conferences()->findConference('JOIN_LINK_OR_QUERY');
+
+$connector->conferences()->createConference([
+    'roomId'                    => 'ROOM_ID',
+    'name'                      => 'Customer Webinar',
+    'maxConnections'            => 50,
+    'startTime'                 => '2026-04-01 10:00:00',
+    'duration'                  => 60,
+    'askModeratorForGuestJoin'  => 'true',
+    'advancedSettings'          => json_encode(['webcamsOnlyForModerator' => false]),
+    'userAttendenceDocumentation' => 0,
+]);
+
+$connector->conferences()->updateConference([
+    'conferenceId' => 'CONFERENCE_ID',
+    'name'         => 'Updated Webinar',
+]);
+
+$connector->conferences()->personalJoins([
+    'conferenceId' => 'CONFERENCE_ID',
+    'names'        => json_encode(['Alice', 'Bob']),
+    'type'         => 0,
+]);
+
+$connector->conferences()->deleteConference('CONFERENCE_ID');
 ```
 
-You can also use resource-local fallback requests for newly released API actions:
+### Slides (per conference)
 
 ```php
-$payload = $connector->conferences()->request('GET', '/future-endpoint', ['key' => 'value']);
+$connector->conferences()->uploadSlides('CONFERENCE_ID', new CURLFile('/path/to/slides.pdf'));
+
+$connector->conferences()->downloadSlides('CONFERENCE_ID');
+
+$connector->conferences()->removeSlides('CONFERENCE_ID');
+```
+
+### Moderators
+
+```php
+$connector->moderators()->listModerators();
+
+$connector->moderators()->registerUser([
+    'email' => 'new@example.com',
+    'name'  => 'Jane Doe',
+]);
+
+$connector->moderators()->toggleUserCanLogin('user@example.com');
+$connector->moderators()->toggleUserIsAdmin('user@example.com');
+$connector->moderators()->refreshInvitationLink(['email' => 'user@example.com']);
+$connector->moderators()->removeUser('user@example.com');
+```
+
+### Moderator Groups (Premium)
+
+```php
+$connector->moderatorGroups()->listModeratorGroups();
+$connector->moderatorGroups()->getModeratorGroup('GROUP_ID');
+$connector->moderatorGroups()->createModeratorGroup(['name' => 'Sales Team']);
+
+$connector->moderatorGroups()->addToModeratorGroup([
+    'moderatorGroupId' => 'GROUP_ID',
+    'moderators'       => json_encode(['user@example.com']),
+]);
+
+$connector->moderatorGroups()->toggleUserIsGroupAdmin('GROUP_ID', 'user@example.com');
+$connector->moderatorGroups()->unassignUser('GROUP_ID', 'user@example.com');
+$connector->moderatorGroups()->refreshInvitationLink('GROUP_ID', 'moderator');
+$connector->moderatorGroups()->deleteModeratorGroup('GROUP_ID');
+```
+
+### Customer Settings
+
+```php
+$connector->customerSettings()->conferenceList();
+$connector->customerSettings()->plugins();
+$connector->customerSettings()->setPluginPolicies(['policies' => json_encode(['key' => 'value'])]);
+
+// Integration API
+$connector->customerSettings()->integrationApi();
+$connector->customerSettings()->toggleIntegrationApi();
+
+// Conference recording
+$connector->customerSettings()->conferenceRecording();
+$connector->customerSettings()->toggleConferenceRecording();
+
+// Branding — color
+$connector->customerSettings()->getBrandingColor();
+$connector->customerSettings()->setBrandingColor('#1a73e8');
+$connector->customerSettings()->removeBrandingColor();
+
+// Branding — logo (PNG, 580x400)
+$logoContent = $connector->customerSettings()->getBrandingLogo();   // returns raw binary string
+$connector->customerSettings()->setBrandingLogo(new CURLFile('/path/to/logo.png'));
+$connector->customerSettings()->removeBrandingLogo();
+
+// Branding — presentation (PDF)
+$pdfContent = $connector->customerSettings()->getBrandingPresentation(); // returns raw binary string
+$connector->customerSettings()->setBrandingPresentation(new CURLFile('/path/to/slides.pdf'));
+$connector->customerSettings()->removeBrandingPresentation();
+```
+
+### Recordings
+
+```php
+$connector->recordings()->listRecordings(['roomId' => 'ROOM_ID']);
+$connector->recordings()->listByConference('CONFERENCE_ID');
+$connector->recordings()->getRecording('RECORDING_ID');
+$connector->recordings()->prepareDownload('RECORDING_ID');
+$connector->recordings()->deleteRecording('RECORDING_ID');
+```
+
+### Invoices
+
+```php
+$connector->invoices()->listInvoices();
+```
+
+### User Attendance
+
+```php
+$connector->userAttendance()->listUserAttendance(['roomId' => 'ROOM_ID']);
+$connector->userAttendance()->getUserAttendance('CONFERENCE_ID');
+$connector->userAttendance()->deleteUserAttendance('CONFERENCE_ID');
+```
+
+### Partner
+
+```php
+$connector->partner()->clients();
+$connector->partner()->turnovers(2026, 3);
+$connector->partner()->creditInvoices();
+```
+
+### Others
+
+```php
+$connector->others()->root();
+$connector->others()->ipranges();
+```
+
+### Direct / Fallback Requests
+
+For endpoints not yet wrapped by a typed method:
+
+```php
+// Global
+$connector->request('GET', '/some/new-endpoint', ['key' => 'value']);
+
+// Scoped to a resource prefix
+$connector->conferences()->request('GET', '/future-endpoint', ['key' => 'value']);
+```
+
+## Architecture
+
+```
+src/
+  SystemApiConnector.php            # Entry facade — exposes all resource clients
+  Configuration/
+    SystemApiConfiguration.php      # Base URL + API key holder
+  Http/
+    HttpTransportInterface.php      # Transport abstraction
+    CurlHttpTransport.php           # cURL implementation
+    JsonHttpClient.php              # JSON request/response handling, error mapping
+    ApiRequest.php                  # Request value object
+    ApiResponse.php                 # Response value object
+  Domain/
+    AbstractResourceClient.php      # Base class for resource clients
+    ConferenceRoomsClient.php       # /conference-rooms/*
+    ConferencesClient.php           # /conferences/*
+    CustomerSettingsClient.php      # /customer-settings/*
+    ModeratorGroupsClient.php       # /moderator-groups/*
+    ModeratorsClient.php            # /moderators/*
+    RecordingsClient.php            # /recordings/*
+    UserAttendanceClient.php        # /user-attendence/*
+    InvoicesClient.php              # /invoices/*
+    PartnerClient.php               # /partner/*
+    OthersClient.php                # / and /others/*
+  Exception/
+    SystemApiException.php          # Base exception (carries HTTP status + response payload)
+    AuthenticationException.php     # 401 / 403
+    TransportException.php          # Network / cURL failures
+    UnexpectedResponseException.php # Non-JSON responses on JSON endpoints
+```
+
+## Error Handling
+
+All API errors throw typed exceptions extending `SystemApiException`:
+
+```php
+use BbbServer\SystemApiConnector\Exception\AuthenticationException;
+use BbbServer\SystemApiConnector\Exception\SystemApiException;
+
+try {
+    $connector->conferenceRooms()->listConferenceRooms();
+} catch (AuthenticationException $e) {
+    // Invalid or missing API key (HTTP 401/403)
+    echo $e->statusCode();       // 401
+    echo $e->responsePayload();  // decoded JSON error body
+} catch (SystemApiException $e) {
+    // Any other API error (4xx/5xx)
+    echo $e->getMessage();
+}
 ```
 
 ## Development
+
 Install dependencies:
 
 ```bash
 composer install
 ```
 
-Run tests:
+Run all tests:
 
 ```bash
 composer test
 ```
 
-Run only unit tests:
+Run only unit tests (no network access required):
 
 ```bash
 composer test:unit
 ```
 
-Run integration tests (requires API key):
+Run integration tests (requires a live API key):
 
 ```bash
-export BBBSERVER_SYSTEMAPI_BASE_URL="https://app.bbbserver.de/en/bbb-system-api"
-export BBBSERVER_SYSTEMAPI_KEY="YOUR_SYSTEMAPI_KEY"
+export BBBSERVER_SYSTEMAPI_BASE_URL="https://app.bbbserver.de/bbb-system-api"
+export BBBSERVER_SYSTEMAPI_KEY="YOUR_API_KEY"
 composer test:integration
 ```
 
-Integration tests are skipped automatically when credentials are not provided.
+Integration tests are **skipped automatically** when credentials are not set. Tests that require premium features (partner endpoints, moderator groups management) are skipped when the account does not support them.
 
-The integration suite performs real API lifecycle checks in strict order:
-1. create conference room
-2. update conference room settings
-3. create conference
-4. get conference
-5. update conference
-6. delete conference
-7. delete conference room
+Generate a coverage report:
 
-Cleanup safeguards run in `tearDownAfterClass()` to remove created entities if a test fails mid-sequence.
+```bash
+composer test:coverage
+```
 
+## License
+
+MIT

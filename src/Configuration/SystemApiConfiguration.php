@@ -31,20 +31,21 @@ final class SystemApiConfiguration
 
     public static function forBbbserver(
         string $apiKey,
-        string $language = 'de',
+        string $language = '',
         string $baseDomain = 'https://app.bbbserver.de'
     ): self {
-        $normalizedLanguage = trim($language) === '' ? 'de' : trim($language);
+        $normalizedLanguage = trim($language);
         $normalizedBaseDomain = rtrim(trim($baseDomain), '/');
 
         if ($normalizedBaseDomain === '') {
             throw new InvalidArgumentException('bbbserver base domain must not be empty.');
         }
 
-        return new self(
-            sprintf('%s/%s/bbb-system-api', $normalizedBaseDomain, $normalizedLanguage),
-            $apiKey
-        );
+        $baseUrl = $normalizedLanguage === ''
+            ? sprintf('%s/bbb-system-api', $normalizedBaseDomain)
+            : sprintf('%s/%s/bbb-system-api', $normalizedBaseDomain, $normalizedLanguage);
+
+        return new self($baseUrl, $apiKey);
     }
 
     public function baseUrl(): string

@@ -70,6 +70,21 @@ final class ConferenceRoomsClient extends AbstractResourceClient
     }
 
     /**
+     * POST /conferences/personal-joins
+     *
+     * Create personal join links with predefined participant names for a QuickConnect conference room.
+     *
+     * Required payload keys:
+     * - roomId: string (UUID of the conference room)
+     * - names: string[]|json-string (participant names)
+     * - type: int (0 = guestJoin, 1 = moderatorJoin)
+     */
+    public function personalJoins(array $personalJoinPayload): array
+    {
+        return $this->jsonHttpClient->post('/conferences/personal-joins', $personalJoinPayload);
+    }
+
+    /**
      * GET /conference-rooms/delete
      *
      * Delete a conference room.

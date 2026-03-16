@@ -53,7 +53,9 @@ final class CurlHttpTransport implements HttpTransportInterface
             CURLOPT_HEADERFUNCTION => $headerCollector,
         ]);
 
-        if ($request->body !== null) {
+        if ($request->multipartBody !== null) {
+            curl_setopt($curlHandle, CURLOPT_POSTFIELDS, $request->multipartBody);
+        } elseif ($request->body !== null) {
             curl_setopt($curlHandle, CURLOPT_POSTFIELDS, $request->body);
         }
 

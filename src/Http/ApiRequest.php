@@ -11,18 +11,21 @@ final class ApiRequest
     public array $headers;
     public array $query;
     public ?string $body;
+    public ?array $multipartBody;
 
     public function __construct(
         string $method,
         string $path,
         array $headers = [],
         array $query = [],
-        ?string $body = null
+        ?string $body = null,
+        ?array $multipartBody = null
     ) {
         $this->method = $method;
         $this->path = $path;
         $this->headers = $headers;
         $this->query = $query;
         $this->body = $body;
+        $this->multipartBody = $multipartBody;
     }
 }
