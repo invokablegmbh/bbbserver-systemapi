@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace BbbServer\SystemApiConnector;
 
 use BbbServer\SystemApiConnector\Configuration\SystemApiConfiguration;
+use BbbServer\SystemApiConnector\Domain\AiSummariesClient;
 use BbbServer\SystemApiConnector\Domain\ConferenceRoomsClient;
 use BbbServer\SystemApiConnector\Domain\ConferencesClient;
 use BbbServer\SystemApiConnector\Domain\CustomerSettingsClient;
@@ -25,6 +26,7 @@ final class SystemApiConnector
     private SystemApiConfiguration $systemApiConfiguration;
     private JsonHttpClient $jsonHttpClient;
 
+    private ?AiSummariesClient $aiSummariesClient = null;
     private ?ConferenceRoomsClient $conferenceRoomsClient = null;
     private ?ModeratorGroupsClient $moderatorGroupsClient = null;
     private ?ConferencesClient $conferencesClient = null;
@@ -84,6 +86,11 @@ final class SystemApiConnector
     public function configuration(): SystemApiConfiguration
     {
         return $this->systemApiConfiguration;
+    }
+
+    public function aiSummaries(): AiSummariesClient
+    {
+        return $this->aiSummariesClient ??= new AiSummariesClient($this->jsonHttpClient);
     }
 
     public function conferenceRooms(): ConferenceRoomsClient

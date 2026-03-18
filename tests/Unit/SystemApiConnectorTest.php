@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace BbbServer\SystemApiConnector\Tests\Unit;
 
 use BbbServer\SystemApiConnector\Configuration\SystemApiConfiguration;
+use BbbServer\SystemApiConnector\Domain\AiSummariesClient;
 use BbbServer\SystemApiConnector\Domain\ConferenceRoomsClient;
 use BbbServer\SystemApiConnector\Domain\ConferencesClient;
 use BbbServer\SystemApiConnector\Domain\CustomerSettingsClient;
@@ -27,6 +28,7 @@ final class SystemApiConnectorTest extends TestCase
         $fakeHttpTransport = new FakeHttpTransport();
         $connector = new SystemApiConnector('https://example.test/api', 'api-key-value', $fakeHttpTransport);
 
+        self::assertInstanceOf(AiSummariesClient::class, $connector->aiSummaries());
         self::assertInstanceOf(ConferenceRoomsClient::class, $connector->conferenceRooms());
         self::assertInstanceOf(ModeratorGroupsClient::class, $connector->moderatorGroups());
         self::assertInstanceOf(ConferencesClient::class, $connector->conferences());
