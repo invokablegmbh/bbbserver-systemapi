@@ -19,48 +19,6 @@ abstract class AbstractResourceClient
         $this->resourcePath = $resourcePath;
     }
 
-    public function list(array $query = []): array
-    {
-        return $this->jsonHttpClient->get($this->resourcePath, $query);
-    }
-
-    /**
-     * @param int|string $identifier
-     */
-    public function get($identifier, array $query = []): array
-    {
-        return $this->jsonHttpClient->get($this->resourcePath . '/' . $identifier, $query);
-    }
-
-    public function create(array $payload, array $query = []): array
-    {
-        return $this->jsonHttpClient->post($this->resourcePath, $payload, $query);
-    }
-
-    /**
-     * @param int|string $identifier
-     */
-    public function update($identifier, array $payload, array $query = []): array
-    {
-        return $this->jsonHttpClient->put($this->resourcePath . '/' . $identifier, $payload, $query);
-    }
-
-    /**
-     * @param int|string $identifier
-     */
-    public function patch($identifier, array $payload, array $query = []): array
-    {
-        return $this->jsonHttpClient->patch($this->resourcePath . '/' . $identifier, $payload, $query);
-    }
-
-    /**
-     * @param int|string $identifier
-     */
-    public function delete($identifier, array $query = []): array
-    {
-        return $this->jsonHttpClient->delete($this->resourcePath . '/' . $identifier, $query);
-    }
-
     public function request(string $method, string $path = '', array $query = [], ?array $payload = null): array
     {
         $normalizedResourcePath = '/' . trim($this->resourcePath, '/');
