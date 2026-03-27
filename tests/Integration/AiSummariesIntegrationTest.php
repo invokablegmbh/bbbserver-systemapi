@@ -18,31 +18,50 @@ final class AiSummariesIntegrationTest extends IntegrationTestCase
             'GET /conference-rooms/list'
         );
 
-        $roomId = null;
+        $rooms = [];
         if (
             isset($roomsResponsePayload['response'])
             && is_array($roomsResponsePayload['response'])
-            && isset($roomsResponsePayload['response'][0])
-            && is_array($roomsResponsePayload['response'][0])
-            && isset($roomsResponsePayload['response'][0]['id'])
-            && is_string($roomsResponsePayload['response'][0]['id'])
-            && $roomsResponsePayload['response'][0]['id'] !== ''
         ) {
-            $roomId = $roomsResponsePayload['response'][0]['id'];
+            $rooms = $roomsResponsePayload['response'];
         }
 
-        if ($roomId === null) {
-            $roomId = $this->extractIdentifier($roomsResponsePayload, ['roomId', 'id']);
+        if (empty($rooms)) {
+            self::markTestSkipped('No conference rooms available to query for AI summaries.');
         }
 
-        if ($roomId === null) {
-            self::markTestSkipped('No conference room available to query AI summaries.');
+        $responsePayload = null;
+        $roomId = null;
+
+        // Search for a conference room that has AI summaries
+        foreach ($rooms as $room) {
+            if (
+                !isset($room['id'])
+                || !is_string($room['id'])
+                || $room['id'] === ''
+            ) {
+                continue;
+            }
+
+            $currentRoomId = $room['id'];
+            $summaries = $this->connector()->aiSummaries()->listAiSummaries(['roomId' => $currentRoomId]);
+
+            if (
+                is_array($summaries)
+                && isset($summaries['response'])
+                && is_array($summaries['response'])
+                && !empty($summaries['response'])
+                && !empty($summaries['response'][0])
+            ) {
+                $roomId = $currentRoomId;
+                $responsePayload = $summaries['response'][0];
+                break;
+            }
         }
 
-        $responsePayload = $this->callEndpointOrSkipFeature(
-            fn (): array => $this->connector()->aiSummaries()->listAiSummaries(['roomId' => $roomId]),
-            'GET /ai-summaries/list'
-        );
+        if ($roomId === null || $responsePayload === null) {
+            self::markTestSkipped('No conference room with AI summaries available.');
+        }
 
         self::assertIsArray($responsePayload);
 

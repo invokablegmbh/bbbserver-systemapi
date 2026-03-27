@@ -68,9 +68,10 @@ final class JsonHttpClient
         ];
 
         if ($payload !== null) {
-            $body = http_build_query($payload);
+            $normalizedPayload = $this->normalizeFormPayload($payload);
+            $body = http_build_query($normalizedPayload);
             $headers['Content-Type'] = 'application/x-www-form-urlencoded';
-            $query = array_merge($payload, $query);
+            $query = array_merge($normalizedPayload, $query);
         }
 
         $response = $this->httpTransport->send(
@@ -180,6 +181,22 @@ final class JsonHttpClient
         }
 
         return $decodedResponse;
+    }
+
+    private function normalizeFormPayload(array $payload): array
+    {
+        $normalizedPayload = [];
+
+        foreach ($payload as $key => $value) {
+            if (is_array($value)) {
+                $normalizedPayload[$key] = json_encode($value);
+                continue;
+            }
+
+            $normalizedPayload[$key] = $value;
+        }
+
+        return $normalizedPayload;
     }
 
     private function decodeResponseBodySafely(string $responseBody): array

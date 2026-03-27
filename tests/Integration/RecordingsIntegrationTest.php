@@ -18,40 +18,62 @@ final class RecordingsIntegrationTest extends IntegrationTestCase
             'GET /conference-rooms/list'
         );
 
-        $roomId = null;
+        $rooms = [];
         if (
             isset($roomsResponsePayload['response'])
             && is_array($roomsResponsePayload['response'])
-            && isset($roomsResponsePayload['response'][0])
-            && is_array($roomsResponsePayload['response'][0])
-            && isset($roomsResponsePayload['response'][0]['id'])
-            && is_string($roomsResponsePayload['response'][0]['id'])
-            && $roomsResponsePayload['response'][0]['id'] !== ''
         ) {
-            $roomId = $roomsResponsePayload['response'][0]['id'];
+            $rooms = $roomsResponsePayload['response'];
         }
 
-        if ($roomId === null) {
-            $roomId = $this->extractIdentifier($roomsResponsePayload, ['roomId', 'id']);
+        if (empty($rooms)) {
+            self::markTestSkipped('No conference rooms available to query for recordings.');
         }
 
-        if ($roomId === null) {
-            self::markTestSkipped('No conference room available to query recordings.');
+        $responsePayload = null;
+        $roomId = null;
+
+        // Search for a conference room that has recordings
+        foreach ($rooms as $room) {
+            if (
+                !isset($room['id'])
+                || !is_string($room['id'])
+                || $room['id'] === ''
+            ) {
+                continue;
+            }
+
+            $currentRoomId = $room['id'];
+            $recordings = $this->connector()->recordings()->listRecordings(['roomId' => $currentRoomId]);
+
+            if (
+                is_array($recordings)
+                && isset($recordings['response'])
+                && is_array($recordings['response'])
+                && !empty($recordings['response'])
+                && !empty($recordings['response'][0])
+            ) {
+                $roomId = $currentRoomId;
+                $responsePayload = $recordings['response'][0];
+
+                break;
+            }
         }
 
-        $responsePayload = $this->callEndpointOrSkipFeature(
-            fn (): array => $this->connector()->recordings()->listRecordings(['roomId' => $roomId]),
-            'GET /recordings/list'
-        );
+        if ($roomId === null || $responsePayload === null) {
+            self::markTestSkipped('No conference room with recordings available.');
+        }
 
         self::assertIsArray($responsePayload);
 
         $recordingId = $this->extractIdentifier($responsePayload, ['recordingId', 'id']);
         $conferenceId = $this->extractIdentifier($responsePayload, ['conferenceId']);
+        $downloadFileState = $this->extractIdentifier($responsePayload, ['download_file_state']);
 
         return [
             'recordingId' => $recordingId,
             'conferenceId' => $conferenceId,
+            'downloadFileState' => $downloadFileState,
         ];
     }
 
@@ -102,6 +124,10 @@ final class RecordingsIntegrationTest extends IntegrationTestCase
             self::markTestSkipped('No recordingId available for prepare download endpoint.');
         }
 
+        if (is_string($state['downloadFileState'] ?? null) && ($state['downloadFileState'] === 'PREPARING' || $state['downloadFileState'] === 'READY')) {
+            self::markTestSkipped('Recording already in preparing state, skipping prepare download endpoint test to avoid conflicts.');
+        }
+
         $responsePayload = $this->callEndpointOrSkipFeature(
             fn (): array => $this->connector()->recordings()->prepareDownload($state['recordingId']),
             'GET /recordings/prepare-download'
@@ -113,7 +139,7 @@ final class RecordingsIntegrationTest extends IntegrationTestCase
     }
 
     /**
-     * @depends testPrepareDownloadEndpoint
+     * @depends testGetRecordingEndpoint
      */
     public function testDeleteRecordingEndpoint(array $state): void
     {

@@ -18,35 +18,54 @@ final class UserAttendanceIntegrationTest extends IntegrationTestCase
             'GET /conference-rooms/list'
         );
 
-        $roomId = null;
+        $rooms = [];
         if (
             isset($roomsResponsePayload['response'])
             && is_array($roomsResponsePayload['response'])
-            && isset($roomsResponsePayload['response'][0])
-            && is_array($roomsResponsePayload['response'][0])
-            && isset($roomsResponsePayload['response'][0]['id'])
-            && is_string($roomsResponsePayload['response'][0]['id'])
-            && $roomsResponsePayload['response'][0]['id'] !== ''
         ) {
-            $roomId = $roomsResponsePayload['response'][0]['id'];
+            $rooms = $roomsResponsePayload['response'];
         }
 
-        if ($roomId === null) {
-            $roomId = $this->extractIdentifier($roomsResponsePayload, ['roomId', 'id']);
+        if (empty($rooms)) {
+            self::markTestSkipped('No conference rooms available to query for user attendance.');
         }
 
-        if ($roomId === null) {
-            self::markTestSkipped('No conference room available to query user attendance.');
+        $responsePayload = null;
+        $roomId = null;
+
+        // Search for a conference room that has user attendance data
+        foreach ($rooms as $room) {
+            if (
+                !isset($room['id'])
+                || !is_string($room['id'])
+                || $room['id'] === ''
+            ) {
+                continue;
+            }
+
+            $currentRoomId = $room['id'];
+            $attendance = $this->connector()->userAttendance()->listUserAttendance(['roomId' => $currentRoomId]);
+
+            if (
+                is_array($attendance)
+                && isset($attendance['response'])
+                && is_array($attendance['response'])
+                && !empty($attendance['response'])
+                && !empty($attendance['response'][0])
+            ) {
+                $roomId = $currentRoomId;
+                $responsePayload = $attendance['response'][0];
+                break;
+            }
         }
 
-        $responsePayload = $this->callEndpointOrSkipFeature(
-            fn (): array => $this->connector()->userAttendance()->listUserAttendance(['roomId' => $roomId]),
-            'GET /user-attendence/list'
-        );
+        if ($roomId === null || $responsePayload === null) {
+            self::markTestSkipped('No conference room with user attendance data available.');
+        }
 
         self::assertIsArray($responsePayload);
 
-        return $this->extractIdentifier($responsePayload, ['conferenceId']);
+        return $this->extractIdentifier($responsePayload, ['conferenceUuid']);
     }
 
     /**
